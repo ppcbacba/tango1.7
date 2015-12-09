@@ -58,7 +58,7 @@ def about(request):
 def category(request, category_name_slug):
 	context_dict = {}
 	category = Category.objects.get(slug=category_name_slug)
-	pages = Page.objects.filter(category=category)
+	pages = Page.objects.filter(category=category).order_by('-views')
 	context_dict['pages'] = pages
 	context_dict['category'] = category
 	return render(request, 'rango/category.html', context_dict)
@@ -209,3 +209,14 @@ def restricted(request):
 # 	return  HttpResponseRedirect('/rango/')
 
 
+def track_url(request):
+	url = '/rango/'
+	if request.method == 'GET':
+		if 'page_id' in request.GET:
+			page_id = int(request.GET['page_id'])
+			page = Page.objects.get(id=page_id)
+			page.views += 1
+			page.save()
+			url=page.url
+		# redirect(url)
+	return redirect(url)
